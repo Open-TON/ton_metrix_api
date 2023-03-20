@@ -1,3 +1,4 @@
+"""API entry point."""
 import logging
 from typing import Never
 
@@ -9,12 +10,14 @@ from redis.connection import ConnectionPool
 import accounts
 import logger
 from config import read_config
-from utils import get_redis_pool, get_mongo_client
+from utils import get_mongo_client
+from utils import get_redis_pool
 
 logger.log()
 
 
 def app() -> Never:
+    """App runner."""
     app = FastAPI()
 
     config_data = read_config('config.ini')
@@ -25,16 +28,9 @@ def app() -> Never:
     mongo_client = MongoClient(config_data.db.dsn)
     app.dependency_overrides[get_mongo_client] = lambda: mongo_client[config_data.db.db_name]
 
-
-    # @app.on_event('startup')
-    # def on_startup():
-    #     app.mongo_client = MongoClient(config_data.db.dsn)
-    #     app.database = app.mongo_client[config_data.db.db_name]
-    #     logging.info('Databases initialized...')
-
-    @app.on_event("shutdown")
+    @app.on_event('shutdown')
     def shutdown_db_client():
-        """Gracefully shutdown connections to services"""
+        """Gracefully shutdown connections to services."""
         mongo_client.close()
         redis_pool.disconnect()
         logging.warning('Databases shutdown done.')
