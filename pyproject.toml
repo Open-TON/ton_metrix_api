@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "metrics-ton-api"
+version = "0.1.0"
+description = "simple mvp backend for ton chain, visiting card"
+authors = ["Juxan <julyfortune101@gmail.com>"]
+readme = "README.md"
+packages = [{include = "metrics_ton_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.95.0"
+redis = "^4.5.2"
+pymongo = "^4.3.3"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
+uvicorn = "^0.21.1"
+pre-commit = "^3.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

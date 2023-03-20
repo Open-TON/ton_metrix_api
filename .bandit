@@ -1,0 +1,4 @@
+[bandit]
+exclude = venv,__pycache__,alembic
+recursive = true
+targets = .
