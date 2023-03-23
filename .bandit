@@ -1,4 +1,5 @@
 [bandit]
-exclude = venv,__pycache__,alembic
+exclude = tests,venv,__pycache__,alembic
+exclude_dirs =
 recursive = true
 targets = .
