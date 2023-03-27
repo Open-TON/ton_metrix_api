@@ -1,9 +1,11 @@
-"""Stubs"""
+"""Stubs."""
 
 
-def get_redis_pool():
+def redis_pool():
+    """For cache DI."""
     raise NotImplementedError
 
 
-def get_mongo_client():
+def get_mongo_db():
+    """For mongo DI to service."""
     raise NotImplementedError

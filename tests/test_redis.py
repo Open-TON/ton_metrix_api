@@ -22,7 +22,7 @@ class TestRedis:
 
     METRIC_NAME = 'test'
     TEST_VAL = 7
-    EXPIRATION_TIME_SEC = 2
+    EXPIRATION_TIME_SEC = 1
 
     def test_write(self, redis_client):
         """Store some `metric`."""

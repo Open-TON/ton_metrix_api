@@ -1,0 +1,19 @@
+openapi: 3.0.3
+#swagger: '2.0'
+info:
+  version: 1.0.0
+  title: OpenTON
+#  description:
+#    TON analytics platform api
+#paths:
+#  /fees/total:
+#    get:
+#      responses:
+#        '200':
+#          description: Total chain fees
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  total_fees: integer
