@@ -10,7 +10,7 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
-LOG_DIR = "logs"
+LOG_DIR = 'logs'
 LOG_FILE_LIMIT_SIZE_BASE = 10_000
 
 
@@ -68,7 +68,7 @@ def log():
         os.mkdir(LOG_DIR)
         logging.info('Folder "%s" was created', LOG_DIR)
     except FileExistsError as ex:
-        logging.info('Folder "%s" already exists - %s', LOG_DIR, ex)
+        logging.info('Folder "%s" already exists - %s', LOG_DIR, str(ex))
 
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(logging.DEBUG)
