@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  database:
+    image: mongo
+    ports:
+      - '27077:27017'
+    volumes:
+      - database-data:/var/mongo/data
+
+  cache:
+    image: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache-data:/var/redis/data
+
+  api:
+    build: .
+    ports:
+      - '8000:8000'
+    depends_on:
+      - database
+
+volumes:
+  database-data:
+  cache-data:
