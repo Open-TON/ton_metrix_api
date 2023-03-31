@@ -3,10 +3,10 @@ from fastapi import Depends
 from redis.client import Redis
 from redis.connection import ConnectionPool
 
-from utils import get_redis_pool
+from utils import redis_pool
 
 
-def redis_pool_acquer(pool: ConnectionPool = Depends(get_redis_pool)):
+def redis_pool_acquer(pool: ConnectionPool = Depends(redis_pool)):
     """Goes as context."""
     client = Redis(connection_pool=pool)
     try:

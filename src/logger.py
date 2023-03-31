@@ -1,10 +1,13 @@
-"""All log levels in separate files in logs level folders,
+"""
+Easy universal log setting.
+
+All log levels in separate files in logs level folders,
 auto-rotaing. Linux and Windows
  """
-
+# flake8: noqa
 import logging
-import sys
 import os
+import sys
 from logging.handlers import RotatingFileHandler
 
 LOG_DIR = "logs"
@@ -16,6 +19,7 @@ def make_file_handler(
         size: int = LOG_FILE_LIMIT_SIZE_BASE,
         backups_num: int = 5
 ) -> RotatingFileHandler:
+    """Handler init decorator."""
     try:
         os.mkdir(f'{LOG_DIR}/{level}')
     except FileExistsError as ex:
@@ -29,6 +33,7 @@ def make_file_handler(
 
 
 def levels_size_generator():
+    """Size ratio."""
     log_size = LOG_FILE_LIMIT_SIZE_BASE
     while 1:
         yield log_size
@@ -45,19 +50,19 @@ DEBUG_LOGS_SIZE = next(log_size_gen)
 
 
 def log():
-    """Runs log engine with file initialization and connecting handlers"""
+    """Runs log engine with file initialization and connecting handlers."""
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     # naming is consistent with logging names convention
     formatterError = logging.Formatter(  # pylint: disable=invalid-name
-        "[%(asctime)s] - [%(levelname)s] - [%(name)s(%(filename)s)"
-        " - %(funcName)s%(lineno)d] "
-        "- %(message)s\n[%(processName)s:%(process)d] [%(threadName)s:"
-        "%(thread)d] - %("
-        "pathname)s\n"
+        '[%(asctime)s] - [%(levelname)s] - [%(name)s(%(filename)s)'
+        ' - %(funcName)s%(lineno)d] '
+        '- %(message)s\n[%(processName)s:%(process)d] [%(threadName)s:'
+        '%(thread)d] - %('
+        'pathname)s\n'
     )
-    formatter = logging.Formatter("[%(asctime)s] - [%(levelname)s]"
-                                  " -->  %(message)s")
+    formatter = logging.Formatter('[%(asctime)s] - [%(levelname)s]'
+                                  ' -->  %(message)s')
 
     try:
         os.mkdir(LOG_DIR)

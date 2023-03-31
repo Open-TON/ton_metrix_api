@@ -1,13 +1,19 @@
 """Mongo to business abstraction realization."""
-# flake8: noqa
-# todo rewrite to motor
+from functools import wraps
 from typing import Callable
 
+from fastapi import Depends
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.command_cursor import CommandCursor
 from pymongo.database import Database
 
+from utils import mongo_db
+# flake8: noqa
+# todo rewrite to motor
+
+
 ####
-# addresses contains balances
+# addresses contain balances
 # addresses:
 # - address - 0xabc
 # - balance - int, nano or tons?
@@ -23,6 +29,9 @@ from pymongo.database import Database
 # - type
 # - date
 
+async def mongo_service(m_db: AsyncIOMotorClient = Depends(mongo_db)):
+    yield MongoService(m_db)
+
 
 class NoMatch(Exception):
     pass
@@ -31,19 +40,20 @@ class NoMatch(Exception):
 def field_extra_cursor(field_name):
     """Empty cursor handling"""
     def cursor_fetch_one(f: Callable):
-        def except_empty(*args) -> int:
+        @wraps(f)
+        async def except_empty(*args) -> int:
             cursor = f(*args)
             try:
-                res = cursor.next()
-            except StopIteration:
+                res = await cursor.next()
+            except StopAsyncIteration:
                 return 0
             return res[field_name]
         return except_empty
     return cursor_fetch_one
 
 
-class MongoRepo:
-    """Mongo ops"""
+class MongoService:
+    """Mongo cross abstraction"""
     def __init__(self, db: Database):
         self._db = db
         self.addresses_col = self._db['addresses']

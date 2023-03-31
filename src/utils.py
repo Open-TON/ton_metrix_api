@@ -6,6 +6,6 @@ def redis_pool():
     raise NotImplementedError
 
 
-def get_mongo_db():
+def mongo_db():
     """For mongo DI to service."""
     raise NotImplementedError
