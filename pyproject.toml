@@ -10,7 +10,7 @@ packages = [{include = "metrics_ton_api"}]
 python = "^3.11"
 fastapi = "^0.95.0"
 redis = "^4.5.2"
-pymongo = "^4.3.3"
+motor = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"

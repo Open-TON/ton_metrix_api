@@ -34,7 +34,7 @@ def app() -> Never:
     def shutdown_db_clients():
         """Gracefully shutdown connections to services."""
         mongo_client.close()
-        redis_pool.disconnect()
+        redis_pooler.disconnect()
         logging.warning('Databases shutdown done.')
     init_controllers(app)
     return app
