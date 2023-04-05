@@ -23,7 +23,11 @@ async def potential_validators() -> int:
 
 @validators_router.get('/count/activity')
 async def get_validators_activity(active: bool) -> int:
-    """Count by activity."""
+    """
+    Count by activity.
+
+    :return validators count in int
+    """
 
 
 @validators_router.get('/stakes')

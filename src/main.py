@@ -22,7 +22,7 @@ def app() -> Never:
                   openapi_tags=tags_metadata
                   )
 
-    config_data = read_config('config.ini')
+    config_data = read_config('../config.ini')
     logging.info('Configuration file loaded...')
 
     redis_pooler = ConnectionPool.from_url(config_data.cache.redis_url)
@@ -37,6 +37,7 @@ def app() -> Never:
         redis_pooler.disconnect()
         logging.warning('Databases shutdown done.')
     init_controllers(app)
+    app.openapi_schema = '../oasd.yaml'
     return app
 
 

@@ -13,7 +13,11 @@ async def tx_daily_avg_value(period_start: int, period_end: int) -> float:
 
 @transactions_router.get('/daily/count', tags=['for_period'])
 async def tx_daily_avg_count(period_start: int, period_end: int) -> float:
-    """Transactions number/period."""
+    """
+    Transactions number/period.
+
+    :return float
+    """
     # Max period by default?
 
 
@@ -22,7 +26,7 @@ async def tx_time_avg() -> float:
     """
     Time over all types.
 
-    :return: seconds for transaction
+    :return: seconds for transaction, float
     """
     # Needs full txs history
 
@@ -34,5 +38,5 @@ async def tx_by_type(tx_type: str) -> int:
 
     :param tx_type: query param tx_type=nft or:
     bridge, defi, exchange
-    :return: amount of transactions
+    :return: amount of transactions, integer
     """

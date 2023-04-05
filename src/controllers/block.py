@@ -6,14 +6,26 @@ block_router = APIRouter(prefix='/block')
 
 @block_router.get('/height')
 def block_height() -> int:
-    """Last block seq num."""
+    """
+    Last block seq num.
+
+    :return integer
+    """
 
 
 @block_router.get('/interval/avg')
 def block_time(day: int) -> float:
-    """Time spent to block for day **days ago**."""
+    """
+    Time spent to block for day **days ago**.
+
+    :return float
+    """
 
 
 @block_router.get('/interval/median')
-def block_median_time(day: int):
-    """Time median for a day."""
+def block_median_time(day: int) -> float:
+    """
+    Time median for a day.
+
+    :return float
+    """
