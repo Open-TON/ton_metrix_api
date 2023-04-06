@@ -37,7 +37,6 @@ def app() -> Never:
         redis_pooler.disconnect()
         logging.warning('Databases shutdown done.')
     init_controllers(app)
-    app.openapi_schema = '../oasd.yaml'
     return app
 
 

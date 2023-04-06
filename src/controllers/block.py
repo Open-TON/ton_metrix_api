@@ -14,7 +14,7 @@ def block_height() -> int:
 
 
 @block_router.get('/interval/avg')
-def block_time(day: int) -> float:
+async def block_time(day: int) -> float:
     """
     Time spent to block for day **days ago**.
 
@@ -23,7 +23,7 @@ def block_time(day: int) -> float:
 
 
 @block_router.get('/interval/median')
-def block_median_time(day: int) -> float:
+async def block_median_time(day: int) -> float:
     """
     Time median for a day.
 

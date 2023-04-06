@@ -1,25 +1,39 @@
+"""Main database and its abstractions tests."""
 # flake8: noqa
 import pytest
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
-from databases.mongo_db import MongoRepo
-from databases.mongo_db import NoMatch
+from src.databases.mongo_db import MongoService
+from src.databases.mongo_db import NoMatch
 
 
 @pytest.fixture(scope='module')
-def mongo_cli():
+def mongo_cli_fxt():
+    """Filler fixture."""
     m_c = MongoClient('mongodb://127.0.0.1')
     try:
-        yield MongoRepo(m_c.addresses)
+        yield MongoService(m_c['ton_storage'])
     finally:
         m_c.close()
 
 
+@pytest.fixture(scope='module')
+def mongo_cli():
+    """Async client for tests."""
+    aio_mongo = AsyncIOMotorClient('mongodb://127.0.0.1:27017')
+    try:
+        yield MongoService(aio_mongo['ton_storage'])
+    finally:
+        aio_mongo.close()
+
+
 @pytest.fixture(autouse=True, scope='module')
-def test_data_mongo(mongo_cli):
-    mongo_cli.addresses_col.drop()
-    mongo_cli.txs_col.drop()
-    result_txs = mongo_cli.txs_col.insert_many(
+def test_data_mongo(mongo_cli_fxt):
+    """Prefilling and closing up on teardown."""
+    mongo_cli_fxt.addresses_col.drop()
+    mongo_cli_fxt.txs_col.drop()
+    result_txs = mongo_cli_fxt.txs_col.insert_many(
         [
             {
                 'from': 0x123443af2302, 'to': 0x123444af5302,
@@ -31,7 +45,7 @@ def test_data_mongo(mongo_cli):
             },
         ]
     )
-    mongo_cli.addresses_col.insert_many(
+    mongo_cli_fxt.addresses_col.insert_many(
         [
             {
                 'address': 0x123443af2302, 'balance': 234,
@@ -44,30 +58,40 @@ def test_data_mongo(mongo_cli):
         ]
     )
     yield
-    mongo_cli.txs_col.drop()
-    mongo_cli.addresses_col.drop()
+    mongo_cli_fxt.txs_col.drop()
+    mongo_cli_fxt.addresses_col.drop()
 
 
-def test_mongo_avgs(mongo_cli):
-    assert mongo_cli.get_addresses_avg() == 117
+@pytest.mark.asyncio
+async def test_mongo_avgs(mongo_cli):
+    """(234 + 0) / 2."""
+    assert await mongo_cli.get_addresses_avg() == 117
 
 
-def test_mongo_zeros(mongo_cli):
-    assert mongo_cli.get_zero_balance() == 1
+@pytest.mark.asyncio
+async def test_mongo_zeros(mongo_cli):
+    """1 provided."""
+    assert await mongo_cli.get_zero_balance() == 1
 
 
-def test_mongo_above_watermark(mongo_cli):
-    assert mongo_cli.get_addresses_over_watermark(-100) == 2
-    assert mongo_cli.get_addresses_over_watermark(15) == 1
-    assert mongo_cli.get_addresses_over_watermark(1_000) == 0
+@pytest.mark.asyncio
+async def test_mongo_above_watermark(mongo_cli):
+    """Watermark classification function test by fixtures."""
+    assert await mongo_cli.get_addresses_over_watermark(-100) == 2
+    assert await mongo_cli.get_addresses_over_watermark(15) == 1
+    assert await mongo_cli.get_addresses_over_watermark(1_000) == 0
 
 
-def test_amount_active(mongo_cli):
-    assert mongo_cli.get_active_addresses() == 1
+@pytest.mark.asyncio
+async def test_amount_active(mongo_cli):
+    """Activity parameter filtering."""
+    assert await mongo_cli.get_active_addresses() == 1
 
 
-def test_total_amounts(mongo_cli):
-    assert mongo_cli.total_entity('addresses') == 2
-    assert mongo_cli.total_entity('transactions') == 2
+@pytest.mark.asyncio
+async def test_total_amounts(mongo_cli):
+    """Entity counter functionality."""
+    assert await mongo_cli.total_entity('addresses') == 2
+    assert await mongo_cli.total_entity('transactions') == 2
     with pytest.raises(NoMatch):
-        mongo_cli.total_entity('bridges')
+        await mongo_cli.total_entity('bridges')
