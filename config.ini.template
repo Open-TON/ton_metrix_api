@@ -1,6 +1,0 @@
-#remove '.template' from filename
-[database]
-MONGO_URI=mongodb://127.0.0.1
-DATABASE_NAME=ton_storage
-[cache]
-REDIS_DSN=redis://localhost?db=0
