@@ -4,7 +4,7 @@ from typing import Never
 
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
-from redis.connection import ConnectionPool
+from redis.asyncio.connection import ConnectionPool
 
 import logger
 from config import read_config
@@ -18,9 +18,10 @@ logger.log()
 
 def app() -> Never:
     """App runner."""
-    app = FastAPI(debug=True,
-                  openapi_tags=tags_metadata
-                  )
+    app = FastAPI(
+        debug=True,
+        openapi_tags=tags_metadata
+    )
 
     config_data = read_config('../config.ini')
     logging.info('Configuration file loaded...')
