@@ -3,7 +3,7 @@ from fastapi import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool
 
-from src.utils import redis_pool
+from utils import redis_pool
 
 
 async def redis_pool_acquer(pool: ConnectionPool = Depends(redis_pool)):
@@ -28,6 +28,6 @@ class RedisRepo:
         if value:
             return int(value.decode())
 
-    async def set_cache(self, metric: str, ttl: int, value: int):
+    async def set_expiring_cache(self, metric: str, ttl: int, value: int):
         """SET val EX tm wrapper."""
         await self._conn.setex(metric, ttl, value)

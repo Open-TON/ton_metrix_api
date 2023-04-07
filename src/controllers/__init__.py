@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from controllers.accounts import accounts_router
 from controllers.block import block_router
 from controllers.fees import fees_router
+from controllers.finance import fin_router
 from controllers.social import social_networks_router
 from controllers.transactions import transactions_router
 from controllers.validators import validators_router
@@ -12,6 +13,7 @@ from controllers.validators import validators_router
 def init_controllers(app: FastAPI):
     """Routers initialization."""
     routers = [
+        fin_router,
         accounts_router,
         fees_router,
         transactions_router,
