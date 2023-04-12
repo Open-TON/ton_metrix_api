@@ -57,8 +57,8 @@ class CorrelationReceiver:
     def make_request_url(self, token_id, hours_ago):
         """Parameters substitution."""
         ago_ts, ts_now = self.timestamps_corridor(hours_ago)
-        return f'''/api/v3/coins/{token_id}/market_chart/range?vs_currency=
-            {self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}'''
+        return (f'/api/v3/coins/{token_id}/market_chart/range?vs_currency='
+            f'{self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}')
 
     # todo add rate limit on hit
     async def get_price_for_period(
