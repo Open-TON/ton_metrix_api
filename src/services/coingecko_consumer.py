@@ -61,20 +61,22 @@ class CorrelationReceiver:
     def make_request_url(self, token_id, hours_ago):
         """Parameters substitution."""
         ago_ts, ts_now = self.timestamps_corridor(hours_ago)
-        return f'''coins/{token_id}/market_chart/range?
-        vs_currency={self.RELATIVE_CURRENCY}&from={ago_ts}
-        &to={ts_now}'''
+        return f'''/api/v3/coins/{token_id}/market_chart/range?vs_currency={self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}'''
 
-    async def get_price_for_preiod(
+    # todo add rate limit on hit
+    async def get_price_for_period(
             self, token_id: str, period_hours: int
     ) -> list[float]:
         """Query for a list of values for correlation processing."""
         # https://www.coingecko.com/en/api/documentation
+        headers = {'content_type': 'application/json'}
         async with ClientSession(GECKO_API) as ses:
             async with ses.get(self.make_request_url(
-                    token_id, period_hours)) as resp:
-                res_json = await resp.json()
-        return self.clean_prices_sample(res_json['price'])
+                    token_id, period_hours),
+                    headers=headers) as resp:
+                res_json = await resp.json(
+                    content_type=resp.content_type)
+        return self.clean_prices_sample(res_json['prices'])
 
 
 class CorrelationCalculator:
@@ -96,9 +98,9 @@ class CorrelationCalculator:
     ) -> float:
         """Linear correlation to data retrieved."""
         # https://ru.wikipedia.org/w/index.php?title=%D0%9A%D0%BE%D1%8D%D1%84%D1%84%D0%B8%D1%86%D0%B8%D0%B5%D0%BD%D1%82_%D0%BA%D0%BE%D1%80%D1%80%D0%B5%D0%BB%D1%8F%D1%86%D0%B8%D0%B8_%D0%9F%D0%B8%D1%80%D1%81%D0%BE%D0%BD%D0%B0&redirect=no
-        ton = await self.provider.get_price_for_preiod(
+        ton = await self.provider.get_price_for_period(
             self.provider.MAIN_CURRENCY, hours_ago)
-        currency = await self.provider.get_price_for_preiod(
+        currency = await self.provider.get_price_for_period(
             currency, hours_ago)
         avg_ton = self.average(ton)
         avg_cur = self.average(currency)

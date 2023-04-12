@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.command_cursor import CommandCursor
 from pymongo.database import Database
 
-from src.utils import mongo_db
+from utils import mongo_db
 # flake8: noqa
 # todo rewrite to motor
 

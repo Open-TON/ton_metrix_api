@@ -28,6 +28,10 @@ class RedisRepo:
         if value:
             return int(value.decode())
 
-    async def set_expiring_cache(self, metric: str, ttl: int, value: int):
-        """SET val EX tm wrapper."""
+    async def set_expiring_cache(self, metric: str, ttl: int, value: float | int):
+        """
+        SET val EX tm wrapper.
+
+        :param ttl - seconds to expire
+        """
         await self._conn.setex(metric, ttl, value)
