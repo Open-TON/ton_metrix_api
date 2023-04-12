@@ -1,11 +1,16 @@
 """Big analytics player API client."""
 import datetime as dt
+import logging
 
 from aiohttp import ClientSession
 
 from models.fins import GeckoCoinIDs
 
 GECKO_API = 'https://api.coingecko.com'
+
+
+class BadRequest(Exception):
+    """Request went 400."""
 
 
 async def query_coin():
@@ -68,6 +73,9 @@ class CorrelationReceiver:
                     headers=headers) as resp:
                 res_json = await resp.json(
                     content_type=resp.content_type)
+                if resp.status == 400:
+                    logging.error('Bad request, %s', res_json)
+                    raise BadRequest
         return self.clean_prices_sample(res_json['prices'])
 
 

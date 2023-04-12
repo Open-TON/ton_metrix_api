@@ -7,14 +7,14 @@ from config import read_config
 from databases.redis import RedisRepo
 from services.coingecko_consumer import CorrelationCalculator
 from services.coingecko_consumer import CorrelationReceiver
-from src.models.fins import GeckoCoinIDs
+from models.fins import GeckoCoinIDs
 
 RENEWAL_TIMEOUT_SEC = 180
 
 
 async def startup(ctx):
     """Global jobs setup."""
-    ctx['pool'] = ConnectionPool.from_url(read_config('/src/config.ini').cache.redis_url)
+    ctx['pool'] = ConnectionPool.from_url(read_config('../config.ini').cache.redis_url)
 
 
 async def correlation(ctx, cur: str, hours: int):
