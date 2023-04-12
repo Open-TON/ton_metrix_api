@@ -35,7 +35,6 @@ async def on_job_start(ctx):
     ctx['cache_writer'] = redis_writer
     ctx['cache_con'] = conn
 
-from services.coingecko_consumer import GeckoClient
 
 def currency_cor_hours(currency: str):
     async def currency_1h(ctx):
@@ -79,8 +78,4 @@ class WorkerSettings:
                               minute=0, run_at_startup=True))
         cron_jobs.append(cron(c['c_30d'], day={1, 11, 21},
                               hour=5, minute=11, run_at_startup=True))
-
-
-
-# loop = asyncio.new_event_loop()
-# loop.run_forever()
+# worker.run_worker(WorkerSettings)
