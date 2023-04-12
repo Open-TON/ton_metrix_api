@@ -27,7 +27,7 @@ class TestRedis:
     @pytest.mark.asyncio
     async def test_write(self, redis_client):
         """Store some `metric`."""
-        setex = await redis_client.set_cache(
+        setex = await redis_client.set_expiring_cache(
             self.METRIC_NAME, self.EXPIRATION_TIME_SEC,
             self.TEST_VAL)
         assert setex is None

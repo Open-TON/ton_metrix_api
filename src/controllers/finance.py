@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 
 from databases.redis import redis_pool_acquer
 from databases.redis import RedisRepo
+from src.models.fin_enums import CorrelationPeriod
 
 fin_router = APIRouter(prefix='/finance')
 
@@ -19,9 +20,23 @@ async def capitalisation(
     if market_cap:
         return market_cap
     else:
-        return JSONResponse(0, status_code=status.HTTP_404_NOT_FOUND)
+        return JSONResponse(content={'message': 'Not up to date.'},
+                            status_code=status.HTTP_404_NOT_FOUND)
 
 
 @fin_router.get('/market_dominance')
 async def dominance():
     """Part of the global market."""
+
+
+@fin_router.get('/correlation/{currency}/{period}')
+async def correlation_value(
+        period: CorrelationPeriod,
+        currency, cache: RedisRepo = Depends(redis_pool_acquer)
+):
+    cor_val = await cache.check_cache()
+    if cor_val:
+        return cor_val
+    else:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND,
+                            content={'message': 'Not up to date.'})
