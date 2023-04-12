@@ -1,9 +1,14 @@
 """Big analytics player API client."""
+import datetime as dt
+from enum import Enum
+
 from aiohttp import ClientSession
 from fastapi import Depends
 
 from databases.redis import redis_pool_acquer, RedisRepo
 
+class GeckoCoinIDs(Enum):
+    """Coingecko coin IDs from and for their API."""
 
 class GeckoClient:
     """Talks to """
