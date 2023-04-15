@@ -34,3 +34,17 @@ PERIOD_TO_HOURS = {
     '7d': 24 * 7,
     '30d': 24 * 30,
 }
+
+
+class CacheMetricsUSD(enum.Enum):
+    """Aliasing metrics keys."""
+
+    CURRENT_PRICE = 'current_price'
+    PRICE_CHANGE_24H = 'price_change_24h'
+    PRICE_CHANGE_24H_PERC = 'price_change_percentage_24h'
+    CURRENT_MARKET_CAP = 'market_cap'
+    MARKET_CAP_CHANGE_24H_PERC = 'market_cap_change_24h_percentage'
+    CURRENT_VOLUME = 'current_volume'
+    VOLUME_CHANGE_24H_PERC = 'volume_change_24h_perc'
+    PRICE_HIGH_24H = 'price_high_24h'
+    PRICE_LOW_24H = 'price_low_24h'
