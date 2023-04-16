@@ -5,8 +5,7 @@ import logging
 
 from aiohttp import ClientSession
 
-from models.fins import CacheMetricsUSD
-from models.fins import GeckoCoinIDs
+from models.fins import CacheMetricsUSD, GeckoCoinIDs
 
 GECKO_API = 'https://api.coingecko.com'
 
@@ -19,25 +18,32 @@ async def query_coin():
     """
     Financial data.
 
-    The most part. Runs once in a hour.
+    The most part. Runs once in hour.
     """
     async with ClientSession(GECKO_API) as aio_cli:
         async with aio_cli.get(f'/api/v3/coins/{GeckoCoinIDs.TON.value}?tickers=false&'
                                f'developer_data=false&sparkline=false') as resp:
             data = await resp.json()
+            try:
+                market_data = data['market_data']
+            except KeyError:
+                logging.error('Error on basic retrieval, %s', resp.status)
+                raise
     flow = {
         CacheMetricsUSD.CURRENT_PRICE.value:
-            data['market_data']['current_price']['usd'],
+            market_data['current_price']['usd'],
         CacheMetricsUSD.PRICE_HIGH_24H.value:
-            data['market_data']['high_24h']['usd'],
+            market_data['high_24h']['usd'],
         CacheMetricsUSD.PRICE_CHANGE_24H_PERC.value:
-            data['market_data']['price_change_percentage_24h'],
+            market_data['price_change_percentage_24h'],
+        CacheMetricsUSD.PRICE_CHANGE_24H.value:
+            market_data['price_change_24h'],
         CacheMetricsUSD.PRICE_LOW_24H.value:
-            data['market_data']['low_24h']['usd'],
+            market_data['low_24h']['usd'],
         CacheMetricsUSD.CURRENT_MARKET_CAP.value:
-            data['market_data']['market_cap']['usd'],
+            market_data['market_cap']['usd'],
         CacheMetricsUSD.MARKET_CAP_CHANGE_24H_PERC.value:
-            data['market_data']['market_cap_change_percentage_24h'],
+            market_data['market_cap_change_percentage_24h'],
     }
     # 'public_interest_score': data['public_interest_score'],
     # 'liquidity_score': data['liquidity_score'],
@@ -111,7 +117,7 @@ class CorrelationReceiver:
         """Parameters substitution."""
         ago_ts, ts_now = self.timestamps_corridor(hours_ago)
         return (f'/api/v3/coins/{token_id}/market_chart/range?vs_currency='
-            f'{self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}')
+                f'{self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}')
 
     # todo add rate limit on hit
     async def get_price_for_period(
@@ -129,7 +135,10 @@ class CorrelationReceiver:
                 if resp.status == 400:
                     logging.error('Bad request, %s', res_json)
                     raise BadRequest
-        return self.clean_prices_sample(res_json['prices'])
+        try:
+            return self.clean_prices_sample(res_json['prices'])
+        except KeyError:
+            logging.error('Cannot get prices, %s', resp.status)
 
 
 class CorrelationCalculator:

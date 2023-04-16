@@ -95,7 +95,6 @@ def currency_cor_hours(currency: str):
     }
 
 
-
 ETH_CORRELATIONS = currency_cor_hours(GeckoCoinIDs.ETH.value)
 BTC_CORRS = currency_cor_hours(GeckoCoinIDs.BTC.value)
 
@@ -111,14 +110,13 @@ class WorkerSettings:
 
     cron_jobs = []
     for c in CORREL_CURRENCIES_PACKS:
-        cron_jobs.append(cron(c['c_1h'], minute=0)),
+        cron_jobs.append(cron(c['c_1h'], minute=0, run_at_startup=True)),
         cron_jobs.append(cron(c['c_24h'], hour={0, 8, 16},
                               minute=3, run_at_startup=True)),
         cron_jobs.append(cron(c['c_7d'], weekday={1, 4}, hour=5,
                               minute=6, run_at_startup=True))
         cron_jobs.append(cron(c['c_30d'], day={1, 11, 21},
                               hour=5, minute=11, run_at_startup=True))
-    cron_jobs.append(cron(ton_market_data, minute={1, 21, 41},
-                          run_at_startup=True))
+    cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
     cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
 
