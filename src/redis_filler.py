@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -44,8 +45,10 @@ async def init_cache():
                 _queue_name=INIT_QUEUE,
             )
             init_delay += REQUEST_TIME_QUOTA
-    # new minute for timeout renewal
-    await asyncio.sleep(MINUTE_SECONDS)
+    # need minute for timeout renewal
+    logging.critical(
+        'Wait %s seconds after this message '
+        'before running main worker', init_delay + MINUTE_SECONDS)
 
 
 if __name__ == '__main__':
