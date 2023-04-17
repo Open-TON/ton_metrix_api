@@ -75,17 +75,29 @@ def currency_cor_hours(currency: str):
         """Retrieve for 1 hour."""
         await correlation(ctx, currency, 1)
 
+    currency_1h.__qualname__ = f'{currency_1h.__qualname__}_{currency}'
+    currency_1h.__name__ = f'{currency_1h.__name__}_{currency}'
+
     async def currency_24h(ctx):
         """Calculate last day."""
         await correlation(ctx, currency, 24)
+
+    currency_24h.__qualname__ = f'{currency_24h.__qualname__}_{currency}'
+    currency_24h.__name__ = f'{currency_24h.__name__}_{currency}'
 
     async def currency_week(ctx):
         """Calculate current week."""
         await correlation(ctx, currency, WEEK_HOURS)
 
+    currency_week.__qualname__ = f'{currency_24h.__qualname__}_{currency}'
+    currency_week.__name__ = f'{currency_24h.__name__}_{currency}'
+
     async def cur_month(ctx):
         """Calculate current month."""
         await correlation(ctx, currency, MONTH_HOURS)
+
+    cur_month.__qualname__ = f'{cur_month.__qualname__}_{currency}'
+    cur_month.__name__ = f'{cur_month.__name__}_{currency}'
 
     return {
         'c_1h': currency_1h,
@@ -120,3 +132,5 @@ class WorkerSettings:
     cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
     cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
 
+
+print(CORREL_CURRENCIES_PACKS[0]['c_1h'].__name__)
