@@ -22,11 +22,11 @@ class RedisRepo:
         """One per dependant."""
         self._conn = conn
 
-    async def check_cache(self, metric: str) -> int:
+    async def check_cache(self, metric: str) -> float:
         """Get not expired values."""
         value = await self._conn.get(metric)
         if value:
-            return int(value.decode())
+            return float(value.decode())
 
     async def set_expiring_cache(self, metric: str, ttl: int, value: float | int):
         """

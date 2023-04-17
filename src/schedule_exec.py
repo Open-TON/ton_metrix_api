@@ -22,7 +22,7 @@ MONTH_HOURS = 24 * 30
 
 async def startup(ctx):
     """Global jobs setup."""
-    ctx['pool'] = ConnectionPool.from_url(read_config('/src/config.ini').cache.redis_url)
+    ctx['pool'] = ConnectionPool.from_url(read_config('../config.ini').cache.redis_url)
 
 
 async def correlation(ctx, cur: str, hours: int):
@@ -121,5 +121,8 @@ class WorkerSettings:
                               minute=6, run_at_startup=True))
         cron_jobs.append(cron(c['c_30d'], day={1, 11, 21},
                               hour=5, minute=11, run_at_startup=True))
+    cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
+    cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
+
     cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
     cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
