@@ -131,6 +131,3 @@ class WorkerSettings:
                               hour=5, minute=11, run_at_startup=True))
     cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
     cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
-
-
-print(CORREL_CURRENCIES_PACKS[0]['c_1h'].__name__)
