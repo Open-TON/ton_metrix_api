@@ -1,0 +1,84 @@
+{
+  "chats": [
+    {
+      "link": "toncoin_es_chat",
+      "type": "",
+      "language": "espanol"
+    },
+    {
+      "link": "toncoin_rus_chat",
+      "type": "",
+      "language": "rus"
+    },
+    {
+      "link": "toncoin_chat",
+      "type": "",
+      "language": "en"
+    },
+    {
+      "link": "toncoin_kr_chat",
+      "type": "",
+      "language": "korean"
+    },
+    {
+      "link": "toncoin_it_chat",
+      "type": "",
+      "language": "italian"
+    },
+    {
+      "link": "toncoin_id_chat",
+      "type": "",
+      "language": "india"
+    },
+    {
+      "link": "toncoin_uz_chat",
+      "type": "",
+      "language": "uzbekistan"
+    },
+    {
+      "link": "toncoin_cn_chat",
+      "type": "",
+      "language": "china"
+    },
+    {
+      "link": "toncoin_tur_chat",
+      "type": "",
+      "language": "turkey"
+    },
+    {
+      "link": "tonsociety_chat",
+      "type": "social",
+      "language": "en"
+    },
+    {
+      "link": "tondev",
+      "type": "dev",
+      "language": "en"
+    },
+    {
+      "link": "tondev",
+      "type": "dev",
+      "language": "china"
+    },
+    {
+      "link": "toncoin_rus",
+      "type": "main",
+      "language": "rus"
+    },
+    {
+      "link": "toncoin",
+      "type": "main",
+      "language": "en"
+    },
+    {
+      "link": "Tgram",
+      "type": "",
+      "language": "rus"
+    },
+    {
+      "link": "moneta_toncoin",
+      "type": "",
+      "language": "rus"
+    }
+  ]
+}

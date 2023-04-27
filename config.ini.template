@@ -1,0 +1,8 @@
+[database]
+MONGO_URI=mongodb://127.0.0.1:27017
+DATABASE_NAME=ton_storage
+[cache]
+REDIS_DSN=redis://localhost?db=0
+[telegram_api]
+API_HASH=aabbccddeeff11223344556677888990
+API_ID=1138963

@@ -4,8 +4,8 @@ import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
-from src.databases.mongo_db import MongoService
-from src.databases.mongo_db import NoMatch
+from src.databases.mongo import MongoService
+from src.databases.mongo import NoMatch
 
 
 @pytest.fixture(scope='module')

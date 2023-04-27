@@ -13,6 +13,8 @@ redis = "^4.5.2"
 motor = "^3.1.1"
 aiohttp = "^3.8.4"
 arq = "^0.25.0"
+pyrogram = "^2.0.103"
+tgcrypto = "^1.2.5"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
@@ -24,3 +26,9 @@ pytest-asyncio = "^0.21.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.bandit]
+exclude = ['mongo.py','__pycache__','alembic']
+exclude_dirs = ['tests','venv']
+recursive = true
+skips = ['B311']

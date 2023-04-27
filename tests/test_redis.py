@@ -1,5 +1,6 @@
 """Cache storage checks."""
 from asyncio import sleep
+from types import NoneType
 
 import pytest
 from redis import asyncio
@@ -50,3 +51,10 @@ class TestRedis:
         await sleep(self.EXPIRATION_TIME_SEC)
         readex = await redis_client.check_cache(self.METRIC_NAME)
         assert not readex
+
+    @pytest.mark.asyncio
+    async def test_get_zset(self, redis_client):
+        """Data validation for national partitions."""
+        res = await redis_client.get_zset('telegram_ton_chats')
+        if type(res) not in (NoneType, dict):
+            raise AssertionError

@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from databases.redis import redis_pool_acquer
-from databases.redis import RedisRepo
-from models.fins import CacheMetricsUSD
+from src.databases.redis import redis_pool_acquer
+from src.databases.redis import RedisRepo
+from src.models.fins import CacheMetricsUSD
 
 
 async def finance_header(cache: RedisRepo = Depends(redis_pool_acquer)) -> dict:

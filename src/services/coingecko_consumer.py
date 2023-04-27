@@ -137,6 +137,7 @@ class CorrelationReceiver:
             return self.clean_prices_sample(res_json['prices'])
         except KeyError:
             logging.error('Cannot get prices, %s', resp.status)
+            raise
 
 
 class CorrelationCalculator:
