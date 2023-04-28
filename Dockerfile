@@ -11,45 +11,28 @@ ENV THIS_ENV=${THIS_ENV} \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
     PYSETUP_PATH="/opt/pysetup" \
-    POETRY_VERSION=1.4.1\
-    VENV_PATH="/opt/pysetup/.venv"
+    APP_PATH="/app" \
+    POETRY_VERSION=1.4.1
 
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+RUN pip install -U pip setuptools &&  \
+    pip install poetry==${POETRY_VERSION}
 
-# builder-base is used to build dependencies
-FROM python-base as builder-base
+RUN mkdir -p ${APP_PATH}
 
-RUN python3 -m venv $VENV_PATH \
-    && $VENV_PATH/bin/pip install -U pip setuptools \
-    && $VENV_PATH/bin/pip install poetry==${POETRY_VERSION}
-
-WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+WORKDIR $APP_PATH
+COPY . .
 RUN poetry lock
-RUN poetry install --no-root --without dev  # currently installs all dev dependencies, just for uvicorn
+RUN poetry install --no-root --without dev
 # 'development' stage installs all dev deps and can be used to develop code.
 # For example using docker-compose to mount local volume under /app
-FROM python-base as development
+
 ENV FASTAPI_ENV=development
 
-# Copying poetry and venv into image
-# COPY --from=builder-base $POETRY_HOME $POETRY_HOME
-COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+RUN chmod +x ./docker-entrypoint.sh
 
-# Copying in our entrypoint
-COPY ./docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-# venv already has runtime deps installed we get a quicker install
-WORKDIR $PYSETUP_PATH
-RUN poetry install --no-root --without dev
-RUN pip install motor
-
-WORKDIR /src
-COPY ./src .
-COPY config.ini .
+WORKDIR ./src
 
 EXPOSE 8000
-ENTRYPOINT /docker-entrypoint.sh $0 $@
+ENTRYPOINT ../docker-entrypoint.sh $0 $@
 CMD ["uvicorn", "--reload", "--factory", "--host=0.0.0.0", "--port=8000", "main:app"]
 # added factory
