@@ -25,7 +25,8 @@ RUN python3 -m venv $VENV_PATH \
 
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
-RUN poetry install --no-root  # currently installs all dev dependencies, just for uvicorn
+RUN poetry lock
+RUN poetry install --no-root --without dev  # currently installs all dev dependencies, just for uvicorn
 # 'development' stage installs all dev deps and can be used to develop code.
 # For example using docker-compose to mount local volume under /app
 FROM python-base as development
@@ -41,7 +42,8 @@ RUN chmod +x /docker-entrypoint.sh
 
 # venv already has runtime deps installed we get a quicker install
 WORKDIR $PYSETUP_PATH
-RUN poetry install --no-root
+RUN poetry install --no-root --without dev
+RUN pip install motor
 
 WORKDIR /src
 COPY ./src .
