@@ -5,12 +5,12 @@ import logging
 from arq import create_pool
 from arq.connections import RedisSettings
 
-from schedule_exec import CORREL_CURRENCIES_PACKS
-from schedule_exec import on_job_end
-from schedule_exec import on_job_start
-from schedule_exec import startup
-from schedule_exec import ton_market_data
-from schedule_exec import ton_volume
+from src.schedule_exec import CORREL_CURRENCIES_PACKS
+from src.schedule_exec import on_job_end
+from src.schedule_exec import on_job_start
+from src.schedule_exec import startup
+from src.schedule_exec import ton_market_data
+from src.schedule_exec import ton_volume
 
 INIT_QUEUE = 'redis_init'
 REQUEST_TIME_QUOTA = 60 / 10  # 10 - 30 rps, worst case

@@ -5,8 +5,8 @@ import logging
 
 from aiohttp import ClientSession
 
-from models.fins import CacheMetricsUSD
-from models.fins import GeckoCoinIDs
+from src.models.fins import CacheMetricsUSD
+from src.models.fins import GeckoCoinIDs
 
 GECKO_API = 'https://api.coingecko.com'
 

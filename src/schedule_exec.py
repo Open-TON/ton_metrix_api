@@ -6,19 +6,19 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool
 
-from config import read_config
-from databases.mongo import MongoService
-from databases.redis import RedisRepo
-from models.fins import CacheMetricsUSD
-from models.fins import GeckoCoinIDs
-from models.general import ZSET_KEY
-from services.coingecko_consumer import CorrelationCalculator
-from services.coingecko_consumer import CorrelationReceiver
-from services.coingecko_consumer import query_coin
-from services.coingecko_consumer import query_volume
-from services.coingecko_consumer import VolumeOps
-from services.telegram_client import client_factory
-from services.telegram_client import UsersCounter
+from src.config import read_config
+from src.databases.mongo import MongoService
+from src.databases.redis import RedisRepo
+from src.models.fins import CacheMetricsUSD
+from src.models.fins import GeckoCoinIDs
+from src.models.general import ZSET_KEY
+from src.services.coingecko_consumer import CorrelationCalculator
+from src.services.coingecko_consumer import CorrelationReceiver
+from src.services.coingecko_consumer import query_coin
+from src.services.coingecko_consumer import query_volume
+from src.services.coingecko_consumer import VolumeOps
+from src.services.telegram_client import client_factory
+from src.services.telegram_client import UsersCounter
 
 RENEWAL_TIMEOUT_SEC = 180
 
@@ -30,7 +30,7 @@ DAY_HOURS = 24
 
 async def startup(ctx):
     """Global jobs setup."""
-    config = read_config('../config.ini')
+    config = read_config('config.ini')
     ctx['pool'] = ConnectionPool.from_url(config.cache.redis_url)
     ctx['mongo_db_srv'] = MongoService(AsyncIOMotorClient(config.db.dsn)[config.db.db_name])
 

@@ -20,7 +20,6 @@ from src.utils import mongo_db
 
 
 # flake8: noqa
-# todo rewrite to motor
 
 
 ####

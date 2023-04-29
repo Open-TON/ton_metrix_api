@@ -7,14 +7,14 @@ from pyrogram import Client
 from pyrogram.types import Chat
 from pyrogram.types import ChatPreview
 
-from config import read_tg_client_conf
-from models.back_entities import TelegramChat
+from src.config import read_tg_client_conf
+from src.models.back_entities import TelegramChat
 
 API_REQUEST_TIMEOUT_SECONDS = 2
 
 
 def client_factory() -> Client:
-    config_data = read_tg_client_conf('../config.ini')
+    config_data = read_tg_client_conf('config.ini')
     tg_client = Client(
         'group_counter',
         api_id=config_data.api_id,
