@@ -1,41 +1,96 @@
 """Big analytics player API client."""
+import bisect
 import datetime as dt
-from enum import Enum
+import logging
 
 from aiohttp import ClientSession
 
-
-class GeckoCoinIDs(Enum):
-    """Coingecko coin IDs from and for their API."""
-
-    TON = 'the-open-network'
-    ETH = 'ethereum'
-    BTC = 'bitcoin'
-    USD = 'usd'
-
+from models.fins import CacheMetricsUSD, GeckoCoinIDs
 
 GECKO_API = 'https://api.coingecko.com'
+
+
+class BadRequest(Exception):
+    """Request went 400."""
 
 
 async def query_coin():
     """
     Financial data.
 
-    The most part. Runs once in a day.
+    The most part. Runs once in hour.
     """
     async with ClientSession(GECKO_API) as aio_cli:
         async with aio_cli.get(f'/api/v3/coins/{GeckoCoinIDs.TON.value}?tickers=false&'
                                f'developer_data=false&sparkline=false') as resp:
             data = await resp.json()
+            try:
+                market_data = data['market_data']
+            except KeyError:
+                logging.error('Error on basic retrieval, %s', resp.status)
+                raise
     flow = {
-        'price_usd': data['market_data']['current_price']['usd'],
-        'h24_usd': data['market_data']['high_24h']['usd'],
-        'l24_usd': data['market_data']['low_24h']['usd'],
-        'market_cap_usd': data['market_data']['market_cap']['usd'],
-        'public_interest_score': data['public_interest_score'],
-        'liquidity_score': data['liquidity_score'],
+        CacheMetricsUSD.CURRENT_PRICE.value:
+            market_data['current_price']['usd'],
+        CacheMetricsUSD.PRICE_HIGH_24H.value:
+            market_data['high_24h']['usd'],
+        CacheMetricsUSD.PRICE_CHANGE_24H_PERC.value:
+            market_data['price_change_percentage_24h'],
+        CacheMetricsUSD.PRICE_CHANGE_24H.value:
+            market_data['price_change_24h'],
+        CacheMetricsUSD.PRICE_LOW_24H.value:
+            market_data['low_24h']['usd'],
+        CacheMetricsUSD.CURRENT_MARKET_CAP.value:
+            market_data['market_cap']['usd'],
+        CacheMetricsUSD.MARKET_CAP_CHANGE_24H_PERC.value:
+            market_data['market_cap_change_percentage_24h'],
     }
+    # 'public_interest_score': data['public_interest_score'],
+    # 'liquidity_score': data['liquidity_score'],
+    #     }
     return flow
+
+
+async def query_volume():
+    """Volume from individual endpoint for changes calculation."""
+    async with ClientSession(GECKO_API) as ses:
+        async with ses.get(f'/api/v3/coins/{GeckoCoinIDs.TON.value}/market_chart?'
+                           f'vs_currency={GeckoCoinIDs.USD.value}&days=2') as resp:
+            json_data = await resp.json()
+    return json_data['total_volumes']
+
+
+class VolumeOps:
+    """Process volume data."""
+
+    MS_IN_24H = 24 * 60 * 60 * 1000
+
+    def __init__(self, volumes24: list[list[int | float]]):
+        """Provide by query."""
+        self.volumes24 = volumes24
+
+    def get_current_volume(self) -> int:
+        """Most timestamp value."""
+        return self.volumes24[-1][1]
+
+    def get_24_h_ago(self):
+        """Get approximate timestamp."""
+        return self.volumes24[-1][0] - self.MS_IN_24H
+
+    def get_volume_24h_ago(self) -> int:
+        """Find volume with the closest timestamp."""
+        ts = self.get_24_h_ago()
+        timestamps = [i[0] for i in self.volumes24]
+        idx = bisect.bisect(timestamps, ts)
+        if self.volumes24[idx][0] - ts > ts - self.volumes24[idx - 1][0]:
+            return self.volumes24[idx - 1][1]
+        return self.volumes24[idx][1]
+
+    def get_volumes_percentage(self):
+        """Compare to 24h ago, relatively to current."""
+        cur_vol = self.get_current_volume()
+        return (cur_vol - self.get_volume_24h_ago()) \
+            / cur_vol * 100
 
 
 class CorrelationReceiver:
@@ -61,7 +116,8 @@ class CorrelationReceiver:
     def make_request_url(self, token_id, hours_ago):
         """Parameters substitution."""
         ago_ts, ts_now = self.timestamps_corridor(hours_ago)
-        return f'''/api/v3/coins/{token_id}/market_chart/range?vs_currency={self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}'''
+        return (f'/api/v3/coins/{token_id}/market_chart/range?vs_currency='
+                f'{self.RELATIVE_CURRENCY}&from={ago_ts}&to={ts_now}')
 
     # todo add rate limit on hit
     async def get_price_for_period(
@@ -76,7 +132,13 @@ class CorrelationReceiver:
                     headers=headers) as resp:
                 res_json = await resp.json(
                     content_type=resp.content_type)
-        return self.clean_prices_sample(res_json['prices'])
+                if resp.status == 400:
+                    logging.error('Bad request, %s', res_json)
+                    raise BadRequest
+        try:
+            return self.clean_prices_sample(res_json['prices'])
+        except KeyError:
+            logging.error('Cannot get prices, %s', resp.status)
 
 
 class CorrelationCalculator:

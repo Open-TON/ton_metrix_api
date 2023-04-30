@@ -32,11 +32,12 @@ def app() -> Never:
     app.dependency_overrides[mongo_db] = lambda: mongo_client[config_data.db.db_name]
 
     @app.on_event('shutdown')
-    def shutdown_db_clients():
+    async def shutdown_db_clients():
         """Gracefully shutdown connections to services."""
         mongo_client.close()
-        redis_pooler.disconnect()
+        await redis_pooler.disconnect()
         logging.warning('Databases shutdown done.')
+
     init_controllers(app)
     return app
 

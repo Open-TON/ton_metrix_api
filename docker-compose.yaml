@@ -4,7 +4,7 @@ services:
   database:
     image: mongo
     ports:
-      - '27077:27017'
+      - '27017:27017'
     volumes:
       - database-data:/var/mongo/data
 
@@ -16,7 +16,8 @@ services:
       - cache-data:/var/redis/data
 
   api:
-    build: .
+#    build: .
+    image: ssi91/ton_metrix_api:local
     ports:
       - '8000:8000'
     depends_on:
