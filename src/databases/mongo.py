@@ -14,9 +14,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from src.models.back_entities import TelegramChat
 from src.models.exceptions import EmptyCorridor
 from src.utils import mongo_db
-# try:
-# except ModuleNotFoundError:
-#     from src.utils import mongo_db
 
 
 # flake8: noqa
@@ -97,20 +94,24 @@ class MongoService:
                 for d in chats]
         await self.channels.insert_many(data)
 
-    async def get_links(self, main: bool) -> AsyncIterator[str]:
+    async def get_links(self, channel: bool) -> AsyncIterator[str]:
         """Chat links for worker."""
-        if main:
-            async for ch in self.channels.find({'type': 'main'}, {'link': 1}):
+        if channel:
+            async for ch in self.channels.find({'type': 'chan'}, {'link': 1}):
                 yield ch['link']
         else:
-            async for ch in self.channels.find({'type': {'$not': re.compile('main')}},
-                                               {'language': 1, 'link': 1}):
-                yield ch['language'], ch['link']
+            raise NotImplemented
+        #     async for ch in self.channels.find({'type': {'$not': re.compile('')}},
+        #                                        {'language': 1, 'link': 1}):
+        #         yield ch['language'], ch['link']
 
     async def get_communities(self) -> AsyncIterator:
         """Inns members count provider."""
-        async for ch in self.channels.find({'type': 'main'}, {
-            '$projection': {'link': 1, 'population': 1, '_id': 0}}):
+        async for ch in self.channels.find({
+        'type': 'chan'}, {
+            'link': 1, 'population': 1,
+            '_id': 0
+        }):
             yield ch
 
     async def save_timing_population(self, link: str, members: int):

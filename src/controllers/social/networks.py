@@ -14,7 +14,10 @@ from src.models.general import ZSET_KEY
 social_networks_router = APIRouter(prefix='/social')
 
 
-@social_networks_router.get('/telegram/community', response_model=CommunityResponse)
+@social_networks_router.get(
+    '/telegram/community',
+    response_model=CommunityResponse
+)
 async def community_members(db_service: MongoService = Depends(mongo_service)):
     """Retrieve main telegram community groups stats."""
     communities = [c async for c in db_service.get_communities()]

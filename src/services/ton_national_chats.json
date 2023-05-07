@@ -2,47 +2,47 @@
   "chats": [
     {
       "link": "toncoin_es_chat",
-      "type": "",
+      "type": "chat",
       "language": "espanol"
     },
     {
       "link": "toncoin_rus_chat",
-      "type": "",
+      "type": "chat",
       "language": "rus"
     },
     {
       "link": "toncoin_chat",
-      "type": "",
+      "type": "chat",
       "language": "en"
     },
     {
       "link": "toncoin_kr_chat",
-      "type": "",
+      "type": "chat",
       "language": "korean"
     },
     {
       "link": "toncoin_it_chat",
-      "type": "",
+      "type": "chat",
       "language": "italian"
     },
     {
       "link": "toncoin_id_chat",
-      "type": "",
-      "language": "india"
+      "type": "chat",
+      "language": "hindi"
     },
     {
       "link": "toncoin_uz_chat",
-      "type": "",
+      "type": "chat",
       "language": "uzbekistan"
     },
     {
       "link": "toncoin_cn_chat",
-      "type": "",
+      "type": "chat",
       "language": "china"
     },
     {
       "link": "toncoin_tur_chat",
-      "type": "",
+      "type": "chat",
       "language": "turkey"
     },
     {
@@ -51,34 +51,74 @@
       "language": "en"
     },
     {
-      "link": "tondev",
+      "link": "tondev_eng",
       "type": "dev",
       "language": "en"
     },
     {
       "link": "tondev",
       "type": "dev",
-      "language": "china"
+      "language": "rus"
     },
     {
       "link": "toncoin_rus",
-      "type": "main",
+      "type": "chan",
       "language": "rus"
     },
     {
       "link": "toncoin",
-      "type": "main",
+      "type": "chan",
       "language": "en"
     },
     {
       "link": "Tgram",
-      "type": "",
+      "type": "chat",
       "language": "rus"
     },
     {
       "link": "moneta_toncoin",
-      "type": "",
+      "type": "chat",
       "language": "rus"
+    },
+    {
+      "link": "toncoin_es",
+      "type": "chan",
+      "language": "espanol"
+    },
+    {
+      "link": "toncoin_it",
+      "type": "chan",
+      "language": "italian"
+    },
+    {
+      "link": "toncoin_kr",
+      "type": "chan",
+      "language": "korean"
+    },
+    {
+      "link": "toncoin_id",
+      "type": "chan",
+      "language": "hindi"
+    },
+    {
+      "link": "toncoin_uz",
+      "type": "chan",
+      "language": "uzbek"
+    },
+    {
+      "link": "toncoin_cn",
+      "type": "chan",
+      "language": "china"
+    },
+    {
+      "link": "toncoin_tur",
+      "type": "chan",
+      "language": "turkish"
+    },
+    {
+      "link": "toncoin_ar",
+      "type": "chan",
+      "language": "arabic"
     }
   ]
 }

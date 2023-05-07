@@ -22,4 +22,4 @@ async def net_bases():
 
 
 if __name__ == '__main__':
-    asyncio.run(net_bases())
+    asyncio.run(main())

@@ -1,6 +1,4 @@
 """Worker setup and task definition."""
-import logging
-
 from arq import cron
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis.asyncio.client import Redis
@@ -11,7 +9,6 @@ from src.databases.mongo import MongoService
 from src.databases.redis import RedisRepo
 from src.models.fins import CacheMetricsUSD
 from src.models.fins import GeckoCoinIDs
-from src.models.general import ZSET_KEY
 from src.services.coingecko_consumer import CorrelationCalculator
 from src.services.coingecko_consumer import CorrelationReceiver
 from src.services.coingecko_consumer import query_coin
@@ -128,23 +125,24 @@ CORREL_CURRENCIES_PACKS = [ETH_CORRELATIONS, BTC_CORRS]
 
 
 async def get_chat_partition(ctx):
+    """Gather Telegram statistics."""
     mongo_srv: MongoService = ctx['mongo_db_srv']
     client = client_factory()
-    groups = {lang: link async for lang, link in mongo_srv.get_links(main=False)}
-    ucounter = UsersCounter(client, groups)
-    cache: RedisRepo = ctx['cache_writer']
-    async for ch in mongo_srv.get_links(main=True):
+    # groups = {lang: link async for lang, link in mongo_srv.get_links(channel=False)}
+    ucounter = UsersCounter(client, {})
+    # cache: RedisRepo = ctx['cache_writer']
+    async for ch in mongo_srv.get_links(channel=True):
         community_count = await ucounter.count_users(ch)
         await mongo_srv.save_timing_population(ch, community_count)
-    group_counts = await ucounter.num_languages()
-    for tg_chat in group_counts:
-        await mongo_srv.save_timing_population(tg_chat.link, tg_chat.members)
-    try:
-        partition = await ucounter.users_partition(group_counts)
-    except ValueError:
-        logging.error('Telegram users counter failed')
-        return
-    await cache.zset_add(ZSET_KEY, partition)
+    # group_counts = await ucounter.num_languages()
+    # for tg_chat in group_counts:
+    #     await mongo_srv.save_timing_population(tg_chat.link, tg_chat.members)
+    # try:
+    #     partition = await ucounter.users_partition(group_counts)
+    # except ValueError:
+    #     logging.error('Telegram users counter failed')
+    #     return
+    # await cache.zset_add(ZSET_KEY, partition)
 
 
 class WorkerSettings:

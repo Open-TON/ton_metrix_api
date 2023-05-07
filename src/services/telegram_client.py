@@ -10,7 +10,7 @@ from pyrogram.types import ChatPreview
 from src.config import read_tg_client_conf
 from src.models.back_entities import TelegramChat
 
-API_REQUEST_TIMEOUT_SECONDS = 2
+API_REQUEST_TIMEOUT_SECONDS = 5
 
 
 def client_factory() -> Client:
@@ -28,7 +28,9 @@ def get_national_chats() -> list[TelegramChat]:
               encoding='utf8') as nat_chat_json:
         chats_json = json.load(nat_chat_json)['chats']
     chats_data: list[TelegramChat] = [
-        TelegramChat(link=c['link'], language=c['language'], type=c['type']) for c in chats_json
+        TelegramChat(
+            link=c['link'], language=c['language'], chat_type=c['type']
+        ) for c in chats_json
     ]
     return chats_data
 
@@ -49,10 +51,13 @@ class UsersCounter:
             except Exception:
                 logging.exception('Can`t join chat %s', group_link)
                 raise
-            if isinstance(chat_data, ChatPreview):
+            finally:
                 await asyncio.sleep(API_REQUEST_TIMEOUT_SECONDS)
+            if isinstance(chat_data, ChatPreview):
                 await self.client.join_chat(group_link)
+                await asyncio.sleep(API_REQUEST_TIMEOUT_SECONDS)
                 chat_data: Chat = await self.client.get_chat(group_link)
+                await asyncio.sleep(API_REQUEST_TIMEOUT_SECONDS)
         return chat_data.members_count
 
     async def num_languages(self) -> list[TelegramChat]:
@@ -65,8 +70,6 @@ class UsersCounter:
             except Exception:
                 logging.exception('Count fetch failed')
                 continue
-            finally:
-                await asyncio.sleep(API_REQUEST_TIMEOUT_SECONDS)
         return chans_info
 
     async def users_partition(self, num_lang_communities: list[TelegramChat]) -> dict[str, float]:
