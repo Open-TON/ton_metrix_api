@@ -1,5 +1,4 @@
 """API entry point."""
-import uvicorn
 from fastapi import FastAPI
 
 from src import logger
@@ -22,5 +21,5 @@ def app_factory() -> FastAPI:
 
 
 if __name__ == '__main__':
-    uvicorn.run(app_factory(), port=8087)
-    # app_factory()
+    # uvicorn.run(app_factory(), port=8087)
+    app_factory()

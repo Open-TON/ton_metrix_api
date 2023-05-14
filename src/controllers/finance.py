@@ -1,23 +1,15 @@
 """Pure financial data, TON."""
 import logging
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-from src.databases.mongo import mongo_service
-from src.databases.mongo import MongoService
-from src.databases.redis import redis_pool_acquer
-from src.databases.redis import RedisRepo
-from src.models.dtos import DataResolutionSeconds
-from src.models.dtos import FinBasic
-from src.models.dtos import PriceResponse
-from src.models.dtos import PriceTickerBlock
+from src.databases.mongo import MongoService, mongo_service
+from src.databases.redis import RedisRepo, redis_pool_acquer
+from src.models.dtos import (DataResolutionSeconds, FinBasic, PriceResponse,
+                             PriceTickerBlock)
 from src.models.exceptions import EmptyCorridor
-from src.models.fins import CorrelationPeriod
-from src.models.fins import CorrelationVs
-from src.models.fins import PERIOD_TO_HOURS
+from src.models.fins import PERIOD_TO_HOURS, CorrelationPeriod, CorrelationVs
 from src.services.finance import finance_header
 
 fin_router = APIRouter(prefix='/finance')
@@ -79,7 +71,7 @@ async def price_ticker(
 ):
     """Customize price data."""
     try:
-        data = await db_service.get_series(
+        data = await db_service.get_series_v1(
             start, end,
             resolution.value
         )
