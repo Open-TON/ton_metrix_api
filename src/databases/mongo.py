@@ -3,18 +3,17 @@ import datetime as dt
 import random
 import re
 from functools import wraps
-from typing import AsyncIterator
-from typing import Callable
+from typing import AsyncIterator, Callable
 
+import pymongo
 from fastapi import Depends
-from motor.motor_asyncio import AsyncIOMotorCollection
-from motor.motor_asyncio import AsyncIOMotorCommandCursor
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from motor.motor_asyncio import (AsyncIOMotorCollection,
+                                 AsyncIOMotorCommandCursor,
+                                 AsyncIOMotorDatabase)
 
-from src.models.back_entities import TelegramChat
+from src.models.back_entities import DEVIATION_MAPPING, TelegramChat
 from src.models.exceptions import EmptyCorridor
 from src.utils import mongo_db
-
 
 # flake8: noqa
 
@@ -83,6 +82,7 @@ class MongoService:
         self.channels = self._db['channels']
         self.txs_col = self._db['transactions']
         self.mock = self._db['network']
+        self.prices = self._db['prices']
 
     # todo apply `project` when tx will be in
     async def add_chats(self, chats: list[TelegramChat]):
@@ -175,19 +175,43 @@ class MongoService:
     ) -> list[dict[str, int | float]]:
         """Provides timestamps with metrics list that lies in corridor."""
         records = [r async for r in self.mock.find(
-            {'timestamp': {'$gte': start, '$lte': end}})]
+            {'timestamp': {'$gte': start, '$lte': end}}).sort('timestamp')]
         if not records:
             raise EmptyCorridor
-        # todo: sort in mongo request
-        records.sort(key=lambda d: d['timestamp'], reverse=True)
+        # records.sort(key=lambda d: d['timestamp'], reverse=True)
+        res = []
+        timestamp = records[0]['timestamp']
+        for r in records:
+            if r['timestamp'] <= timestamp:
+                res.append(r)
+                timestamp += step_seconds - step_seconds * DEVIATION_MAPPING[step_seconds]
+        return res
+
+    async def get_series_v1(self, start: int,
+            end: int, step_seconds: int
+    ) -> list[dict[str, int | float]]:
+        records = [r async for r in self.prices.find(
+            {'timestamp': {'$gte': start, '$lte': end}}).sort('timestamp')]
+        if not records:
+            raise EmptyCorridor
+        # records.sort(key=lambda d: d['timestamp'], reverse=True)
         res = []
         timestamp = records[0]['timestamp']
         # todo make corridor apply for 90% and 10% in second call
         for r in records:
-            if r['timestamp'] <= timestamp:
+            if r['timestamp'] >= timestamp:
                 res.append(r)
+                timestamp = r['timestamp']
                 timestamp += step_seconds
         return res
+
+    async def save_new_price(self, price: float, ts_now: int):
+        """Insert one price, used in every 5 minutes."""
+        await self.prices.insert_one({'timestamp': ts_now, 'price': price})
+
+    async def apply_initial_prices(
+            self, prices_preload: list[dict[int, float]]):
+        await self.prices.insert_many(prices_preload)
 
 
 class NetworkMock:

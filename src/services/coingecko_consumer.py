@@ -1,14 +1,17 @@
 """Big analytics player API client."""
+import asyncio
 import bisect
 import datetime as dt
 import logging
 
 from aiohttp import ClientSession
 
-from src.models.fins import CacheMetricsUSD
-from src.models.fins import GeckoCoinIDs
+from src.models.fins import CacheMetricsUSD, GeckoCoinIDs
 
 GECKO_API = 'https://api.coingecko.com'
+
+
+COINGECKO_API_TIMEOUT_SEC = 6
 
 
 class BadRequest(Exception):
@@ -176,3 +179,39 @@ class CorrelationCalculator:
         if denominator == 0:
             return 1.0
         return numerator / denominator
+
+
+class PriceLoader:
+    """Operate with prices data from CoinGecko."""
+
+    async def get_price_data(self, from_ts: float, to_ts: float):
+        """Query resource provider."""
+        async with ClientSession(GECKO_API) as ses:
+            async with ses.get(f'/api/v3/coins/{GeckoCoinIDs.TON.value}'
+                               '/market_chart/range?vs_currency=usd&'
+                               f'from={int(from_ts)}&to={int(to_ts)}') as resp:
+                json_data = await resp.json()
+        return json_data['prices']
+
+    async def get_whole_data(self):
+        """Load database with ton price with various precision."""
+        now = dt.datetime.now()
+        now_tp = dt.datetime.timestamp(now)
+        day_ago = now - dt.timedelta(
+            days=1)
+        season_ago = now - dt.timedelta(days=90)
+        early_data = dt.datetime.timestamp(now - dt.timedelta(days=2_000))
+        prec_5min = await self.get_price_data(dt.datetime.timestamp(
+            day_ago + dt.timedelta(minutes=4)), now_tp)
+        await asyncio.sleep(COINGECKO_API_TIMEOUT_SEC)
+        prec_1hour = await self.get_price_data(
+            dt.datetime.timestamp(season_ago + dt.timedelta(
+                minutes=59)), dt.datetime.timestamp(day_ago))
+        await asyncio.sleep(COINGECKO_API_TIMEOUT_SEC)
+        prec_daily = await self.get_price_data(
+            early_data, dt.datetime.timestamp(season_ago))
+        return prec_5min, prec_1hour, prec_daily
+
+
+def convert_prices(prices_data: list[list[int, float]]):
+    return [{'timestamp': ts // 1000, 'price': price} for ts, price in prices_data]

@@ -1,4 +1,6 @@
 """Worker setup and task definition."""
+import datetime as dt
+
 from arq import cron
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis.asyncio.client import Redis
@@ -7,15 +9,11 @@ from redis.asyncio.connection import ConnectionPool
 from src.config import read_config
 from src.databases.mongo import MongoService
 from src.databases.redis import RedisRepo
-from src.models.fins import CacheMetricsUSD
-from src.models.fins import GeckoCoinIDs
-from src.services.coingecko_consumer import CorrelationCalculator
-from src.services.coingecko_consumer import CorrelationReceiver
-from src.services.coingecko_consumer import query_coin
-from src.services.coingecko_consumer import query_volume
-from src.services.coingecko_consumer import VolumeOps
-from src.services.telegram_client import client_factory
-from src.services.telegram_client import UsersCounter
+from src.models.fins import CacheMetricsUSD, GeckoCoinIDs
+from src.services.coingecko_consumer import (CorrelationCalculator,
+                                             CorrelationReceiver, VolumeOps,
+                                             query_coin, query_volume)
+from src.services.telegram_client import UsersCounter, client_factory
 
 RENEWAL_TIMEOUT_SEC = 180
 
@@ -47,6 +45,12 @@ async def ton_market_data(ctx):
     """Cache market data."""
     market_data = await query_coin()
     cache_writer: RedisRepo = ctx['cache_writer']
+    mongo_db: MongoService = ctx['mongo_db_srv']
+    ts_now = dt.datetime.timestamp(dt.datetime.now())
+    await mongo_db.save_new_price(
+        market_data[CacheMetricsUSD.CURRENT_PRICE.value],
+        int(ts_now)
+    )
     for k in market_data:
         await cache_writer.set_expiring_cache(k, HOUR_SECONDS, market_data[k])
 
@@ -161,7 +165,7 @@ class WorkerSettings:
                               minute=6))
         cron_jobs.append(cron(c['c_30d'], day={1, 11, 21},
                               hour=5, minute=11))
-    cron_jobs.append(cron(ton_market_data, minute={1, 21, 41}))
+    cron_jobs.append(cron(ton_market_data, minute=set(range(0, 59, 5))))
     cron_jobs.append(cron(ton_volume, minute={2, 22, 42}))
     cron_jobs.append(cron(get_chat_partition, hour=2, minute=2, run_at_startup=True))
 # worker.run_worker(WorkerSettings)

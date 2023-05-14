@@ -5,14 +5,11 @@ import logging
 from arq import create_pool
 from arq.connections import RedisSettings
 
-from src.schedule_exec import CORREL_CURRENCIES_PACKS
-from src.schedule_exec import currency_cor_hours  # noqa: F401
-from src.schedule_exec import on_job_end
-from src.schedule_exec import on_job_start
-from src.schedule_exec import startup
-from src.schedule_exec import ton_market_data
-from src.schedule_exec import ton_volume
-
+from src.schedule_exec import \
+    currency_cor_hours  # noqa: F401 crutch for worker function scope
+from src.schedule_exec import (CORREL_CURRENCIES_PACKS, on_job_end,
+                               on_job_start, startup, ton_market_data,
+                               ton_volume)
 
 INIT_QUEUE = 'redis_init'
 REQUEST_TIME_QUOTA = 60 / 10  # 10 - 30 rps, worst case
