@@ -27,12 +27,11 @@ RUN poetry install --no-root --without dev
 # For example using docker-compose to mount local volume under /app
 
 ENV FASTAPI_ENV=development
+ENV PYTHONPATH=/app
 
 RUN chmod +x ./docker-entrypoint.sh
 
-WORKDIR ./src
-
 EXPOSE 8000
-ENTRYPOINT ../docker-entrypoint.sh $0 $@
-CMD ["uvicorn", "--reload", "--factory", "--host=0.0.0.0", "--port=8000", "main:app"]
+ENTRYPOINT ./docker-entrypoint.sh $0 $@
+CMD ["uvicorn", "--reload", "--factory", "--host=0.0.0.0", "--port=8000", "src.main:app_factory"]
 # added factory
