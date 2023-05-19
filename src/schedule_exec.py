@@ -2,10 +2,12 @@
 import datetime as dt
 
 from arq import cron
+from arq.connections import RedisSettings
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool
 
+from src.config import main_config
 from src.config import read_config
 from src.databases.mongo import MongoService
 from src.databases.redis import RedisRepo
@@ -151,6 +153,8 @@ async def get_chat_partition(ctx):
 
 class WorkerSettings:
     """Base worker setup."""
+
+    redis_settings = RedisSettings.from_dsn(main_config().cache.redis_url)
 
     on_startup = startup
     on_job_start = on_job_start

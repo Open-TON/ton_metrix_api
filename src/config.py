@@ -41,6 +41,10 @@ def read_config(ini_path: str) -> MainConfig:
     )
 
 
+def main_config() -> MainConfig:
+    return read_config('config.ini')
+
+
 @dataclass(frozen=True)
 class TelegramApiConfig:
     """Telegram userbot settings."""

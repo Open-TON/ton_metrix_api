@@ -5,8 +5,7 @@ import logging
 from arq import create_pool
 from arq.connections import RedisSettings
 
-from src.schedule_exec import \
-    currency_cor_hours  # noqa: F401 crutch for worker function scope
+from src.config import main_config
 from src.schedule_exec import (CORREL_CURRENCIES_PACKS, on_job_end,
                                on_job_start, startup, ton_market_data,
                                ton_volume)
@@ -21,10 +20,7 @@ class InitializationSettings:
 
     queue_name = INIT_QUEUE
 
-    redis_settings = RedisSettings(
-        # username="redis",
-        password="redispassword"
-    )
+    redis_settings = RedisSettings.from_dsn(main_config().cache.redis_url)
 
     functions = [
         ton_market_data,
@@ -39,10 +35,7 @@ class InitializationSettings:
 
 
 async def init_cache():
-    redis = await create_pool(RedisSettings(
-        # username="redis",
-        password="redispassword"
-    ))
+    redis = await create_pool(RedisSettings.from_dsn(main_config().cache.redis_url))
     functions = [ton_volume, ton_market_data]
     init_delay = 0
     for f in functions:
