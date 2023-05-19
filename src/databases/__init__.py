@@ -12,7 +12,7 @@ from src.utils import redis_pool
 
 def database_un_load(app: FastAPI):
     """Database initialization with shutdown gracefully."""
-    config_data = read_config(r'P:\projos\metrics_TON_API\config.ini')
+    config_data = read_config(r'config.ini')
     logging.info('Configuration file loaded...')
 
     mongo_client = AsyncIOMotorClient(config_data.db.dsn)
