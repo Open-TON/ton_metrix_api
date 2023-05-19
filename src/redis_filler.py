@@ -21,6 +21,11 @@ class InitializationSettings:
 
     queue_name = INIT_QUEUE
 
+    redis_settings = RedisSettings(
+        # username="redis",
+        password="redispassword"
+    )
+
     functions = [
         ton_market_data,
         ton_volume,
@@ -34,7 +39,10 @@ class InitializationSettings:
 
 
 async def init_cache():
-    redis = await create_pool(RedisSettings())
+    redis = await create_pool(RedisSettings(
+        # username="redis",
+        password="redispassword"
+    ))
     functions = [ton_volume, ton_market_data]
     init_delay = 0
     for f in functions:
