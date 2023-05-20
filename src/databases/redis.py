@@ -3,7 +3,10 @@ from fastapi import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool
 
-from utils import redis_pool
+from src.utils import redis_pool
+# try:
+# except ModuleNotFoundError:
+#     from src.utils import redis_pool
 
 
 async def redis_pool_acquer(pool: ConnectionPool = Depends(redis_pool)):
@@ -35,3 +38,13 @@ class RedisRepo:
         :param ttl - seconds to expire
         """
         await self._conn.setex(metric, ttl, value)
+
+    async def zset_add(self, zset: str, mapping: dict):
+        """Store mapping as sorted by float."""
+        await self._conn.zadd(zset, mapping=mapping)
+
+    async def get_zset(self, set_name: str) -> dict[str, float]:
+        """Use for distribution views."""
+        scores = await self._conn.zscan(set_name)
+        if scores:
+            return {k.decode(): v for k, v in scores[1]}

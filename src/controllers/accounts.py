@@ -1,7 +1,42 @@
 """Account information."""
+import logging
+
 from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from starlette import status
+
+from src.databases.mongo import mongo_service
+from src.databases.mongo import MongoService
+from src.models.dtos import DataResolutionSeconds
+from src.models.dtos import NetBases
+from src.models.dtos import NetBasesResponse
+from src.models.exceptions import EmptyCorridor
 
 accounts_router = APIRouter(prefix='/accounts')
+
+
+@accounts_router.get('/network/data', response_model=NetBasesResponse)
+async def network_base(
+        start: int, end: int, resolution: DataResolutionSeconds,
+        db_service: MongoService = Depends(mongo_service)
+):
+    """Mainnet accounts and transactions as activity indicator."""
+    try:
+        data = await db_service.get_series(
+            start, end,
+            resolution.value
+        )
+    except EmptyCorridor:
+        logging.warning('No data for net bases %s - %s, %s',
+                        start, end, resolution.value)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    res = []
+    for d in data:
+        res.append(NetBases(timestamp=d['timestamp'],
+                            addresses_count=d['addresses'],
+                            transactions_count=d['transactions']))
+    return {'bases': res}
 
 
 @accounts_router.get('/tx_sent/{address}')
@@ -63,7 +98,7 @@ async def over_level(tons: float) -> int:
 
     Also used in not zero check(ex. over 0 or 1 TON)
 
-    :param balance in tons, float
+    :param tons balance in tons, float
     :return accounts with balance more than requested mark
     """
 

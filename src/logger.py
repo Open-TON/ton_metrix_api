@@ -2,7 +2,7 @@
 Easy universal log setting.
 
 All log levels in separate files in logs level folders,
-auto-rotaing. Linux and Windows
+auto-rotating. Linux and Windows
  """
 # flake8: noqa
 import logging

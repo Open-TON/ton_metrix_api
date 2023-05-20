@@ -1,16 +1,16 @@
 """Pure financial data, TON."""
-from fastapi import APIRouter
-from fastapi import Depends
-from starlette import status
-from starlette.responses import JSONResponse
+import logging
 
-from databases.redis import redis_pool_acquer
-from databases.redis import RedisRepo
-from models.dtos import FinBasic
-from models.fins import CorrelationPeriod
-from models.fins import CorrelationVs
-from models.fins import PERIOD_TO_HOURS
-from services.finance import finance_header
+from fastapi import APIRouter, Depends, HTTPException
+from starlette import status
+
+from src.databases.mongo import MongoService, mongo_service
+from src.databases.redis import RedisRepo, redis_pool_acquer
+from src.models.dtos import (DataResolutionSeconds, FinBasic, PriceResponse,
+                             PriceTickerBlock)
+from src.models.exceptions import EmptyCorridor
+from src.models.fins import PERIOD_TO_HOURS, CorrelationPeriod, CorrelationVs
+from src.services.finance import finance_header
 
 fin_router = APIRouter(prefix='/finance')
 
@@ -23,11 +23,10 @@ async def capitalisation(
     market_cap = await cache.check_cache('market_cap_usd')
     if market_cap:
         return market_cap
-    else:
-        return JSONResponse(
-            content={'message': 'Not up to date.'},
-            status_code=status.HTTP_404_NOT_FOUND
-        )
+    raise HTTPException(
+        detail='Not up to date.',
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
 
 
 @fin_router.get('/market_dominance')
@@ -38,6 +37,11 @@ async def dominance():
 @fin_router.get('/ton/bases', response_model=FinBasic)
 async def ton_data_daily(header_data=Depends(finance_header)):
     """Provide data and daily changes for the title."""
+    if not all(header_data.values()):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Not up to date.'
+        )
     return header_data
 
 
@@ -54,7 +58,25 @@ async def correlation_value(
     if cor_val:
         return cor_val
     else:
-        return JSONResponse(
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={'message': 'Not up to date.'}
+            detail='Not up to date.',
         )
+
+
+@fin_router.get('/price', response_model=PriceResponse, tags=['for_period'])
+async def price_ticker(
+        start: int, end: int, resolution: DataResolutionSeconds,
+        db_service: MongoService = Depends(mongo_service)
+):
+    """Customize price data."""
+    try:
+        data = await db_service.get_series_v1(
+            start, end,
+            resolution.value
+        )
+    except EmptyCorridor:
+        logging.warning('Data for prices missing, %s - %s, %s',
+                        start, end, resolution.value)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return {'blocks': [PriceTickerBlock(timestamp=d['timestamp'], price=d['price']) for d in data]}

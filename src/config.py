@@ -39,3 +39,28 @@ def read_config(ini_path: str) -> MainConfig:
         DBConfig(db.get('MONGO_URI'), db.get('DATABASE_NAME')),
         CacheConfig(cache.get('REDIS_DSN'))
     )
+
+
+def main_config() -> MainConfig:
+    return read_config('config.ini')
+
+
+@dataclass(frozen=True)
+class TelegramApiConfig:
+    """Telegram userbot settings."""
+
+    api_id: int
+    api_hash: str
+
+
+def read_tg_client_conf(config_path: str) -> TelegramApiConfig:
+    """Inject API parameters."""
+    config_parser = configparser.ConfigParser()
+    config_parser.read(config_path)
+
+    tg_api = config_parser['telegram_api']
+
+    return TelegramApiConfig(
+        tg_api.get('API_ID'),
+        tg_api.get('API_HASH')
+    )
