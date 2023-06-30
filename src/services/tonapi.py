@@ -27,7 +27,7 @@ class TonAPIClient:
                 f"Tonapi response with error code: {response.status_code}, error: {response.text}")
         return response.json()
 
-    @rate_limiter(limit=1)
+    @rate_limiter(limit=0.9)
     def tx_by_block(self, block_id):
         """
        Find transactions by block id.
@@ -38,7 +38,7 @@ class TonAPIClient:
         transactions = self._request(request_url)
         return transactions
 
-    @rate_limiter(limit=1)
+    @rate_limiter(limit=0.9)
     def tx_by_account(self, account_id):
         """
        Find transactions by account id.
@@ -49,7 +49,7 @@ class TonAPIClient:
         transactions = self._request(request_url)
         return transactions
 
-    @rate_limiter(limit=1)
+    @rate_limiter(limit=0.9)
     def raw_request(self, request_url, params):
         """
         Make any request to tonapi.io
@@ -59,4 +59,3 @@ class TonAPIClient:
         """
         response = self._request(request_url, params)
         return response
-

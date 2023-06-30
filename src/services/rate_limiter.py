@@ -1,4 +1,7 @@
-def rate_limiter(limit: int = 1):
+from typing import Union
+
+
+def rate_limiter(limit: Union[int, float] = 1):
     def decorator_function(func):
         import time
 
@@ -7,7 +10,7 @@ def rate_limiter(limit: int = 1):
         def wrapper(*args, **kwargs):
             nonlocal last_request_time
 
-            interval = 1.1 / limit
+            interval = 1 / limit
             current_time = time.time()
             time_since_last_request = current_time - last_request_time
             if time_since_last_request < interval:
