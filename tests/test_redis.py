@@ -5,13 +5,14 @@ from types import NoneType
 import pytest
 from redis import asyncio
 
+from src.config import main_config
 from src.databases.redis import RedisRepo
 
 
 @pytest.fixture(scope='module')
 def redis_client():
     """Test connection provider."""
-    redis = asyncio.Redis()
+    redis = asyncio.Redis().from_url(main_config().cache.redis_url)
     # try:
     yield RedisRepo(redis)
     # finally:
